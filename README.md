@@ -79,4 +79,4 @@ echo "$(minikube ip) star-burger.test" | sudo tee -a /etc/hosts
 ```
 minikube addons enable ingress     
 ```
-
+Откройте сайт по ссылке: http://star-burger.test/
