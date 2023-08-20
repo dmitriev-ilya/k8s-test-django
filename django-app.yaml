@@ -16,7 +16,7 @@ spec:
     spec:
       containers:
         - name : django-container
-          image: django_app
+          image: django-app
           envFrom:
             - configMapRef:
                 name: django-config
