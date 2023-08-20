@@ -49,7 +49,7 @@ eval $(minikube docker-env)
 ```
 docker build -t django-app ./backend_main_django
 ```
-Создайте конфигурационный файл `django-app-config.yaml', содержащий в себе все необходимые переменные окружения:
+Создайте конфигурационный файл `django-app-config.yaml`, содержащий в себе все необходимые переменные окружения:
 ```
 apiVersion: v1
 kind: ConfigMap
