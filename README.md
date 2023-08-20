@@ -71,3 +71,12 @@ data:
 ```
 kubectl apply -f django-app.yaml
 ```
+Добавьте путь к тестову хосту в файл `etc/hosts`:
+```
+echo "$(minikube ip) star-burger.test" | sudo tee -a /etc/hosts
+```
+Включите сервисы `Ingress` в Minikube:
+```
+minikube addons enable ingress     
+```
+
