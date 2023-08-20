@@ -32,3 +32,42 @@ $ docker-compose run web ./manage.py createsuperuser
 `ALLOWED_HOSTS` -- настройка Django со списком разрешённых адресов. Если запрос прилетит на другой адрес, то сайт ответит ошибкой 400. Можно перечислить несколько адресов через запятую, например `127.0.0.1,192.168.0.1,site.test`. [Документация Django](https://docs.djangoproject.com/en/3.2/ref/settings/#allowed-hosts).
 
 `DATABASE_URL` -- адрес для подключения к базе данных PostgreSQL. Другие СУБД сайт не поддерживает. [Формат записи](https://github.com/jacobian/dj-database-url#url-schema).
+
+## Запуск в Minikube
+
+Сайт можно запустить на локальном компьютере с помощью связки [VirtualBox](https://www.virtualbox.org/) + [Minikube](https://minikube.sigs.k8s.io/docs/) + [K8s](https://kubernetes.io/ru/docs/tasks/tools/install-kubectl/) - подробно инструкция описана в [видео](https://www.youtube.com/watch?v=WAIrMmCQ3hE&list=PLg5SS_4L6LYvN1RqaVesof8KAf-02fJSi&index=3).
+
+Запустите Minikube командой:
+```
+minikube start
+```
+Введите команду ниже, чтобы получить возможность использовать Docker внутри кластера:
+```
+eval $(minikube docker-env)
+```
+Затем соберите Docker-образ нашего Django-приложения внутри кластера:
+```
+docker build -t django-app ./backend_main_django
+```
+Создайте конфигурационный файл `django-app-config.yaml', содержащий в себе все необходимые переменные окружения:
+```
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: django-config
+  labels:
+    app: django-app
+data:
+  SECRET_KEY: <django secret key>
+  DATABASE_URL: postgres://USERNAME:PASSWORD@HOST:PORT/DB_NAME
+  DEBUG=False
+  ALLOWED_HOSTS=<список доступных хостов>
+```
+Запустите файл-конфиг:
+```
+ kubectl apply -f django-app-config.yaml
+```
+Запустите сборку деплоймента:
+```
+kubectl apply -f django-app.yaml
+```
