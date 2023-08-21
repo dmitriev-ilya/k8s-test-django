@@ -71,7 +71,7 @@ data:
 ```
 kubectl apply -f django-app.yaml
 ```
-Добавьте путь к тестову хосту в файл `etc/hosts`:
+Добавьте путь к тестовому хосту в файл `etc/hosts`:
 ```
 echo "$(minikube ip) star-burger.test" | sudo tee -a /etc/hosts
 ```
@@ -90,3 +90,9 @@ kubectl apply -f clearsession.yaml
 ```
 
 Откройте сайт по ссылке: http://star-burger.test/
+
+
+Чтобы применить миграции к базе данных, используйте следующую команду:
+```
+kubectl apply -f django-migrate.yaml
+```
