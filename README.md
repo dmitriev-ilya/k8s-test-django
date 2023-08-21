@@ -90,6 +90,8 @@ kubectl apply -f kubernetes/ingress.yaml
 kubectl apply -f kubernetes/clearsession.yaml
 ```
 
+## Работа с сайтом
+
 Откройте сайт по ссылке: http://star-burger.test/
 
 
