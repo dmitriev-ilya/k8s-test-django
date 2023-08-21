@@ -6,8 +6,10 @@ metadata:
     app: django-app
 spec:
   schedule: "0 0 * * *"
+  startingDeadlineSeconds: 11
   jobTemplate:
       spec:
+        ttlSecondsAfterFinished: 100
         template:
           spec:
             containers:
