@@ -83,4 +83,10 @@ minikube addons enable ingress
 ```
 kubectl apply -f ingress.yaml
 ```
+
+Запустите манифест `clearsession`, для установки очистки сессий Django по расписанию:
+```
+kubectl apply -f clearsession.yaml
+```
+
 Откройте сайт по ссылке: http://star-burger.test/
