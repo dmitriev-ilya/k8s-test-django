@@ -49,7 +49,8 @@ eval $(minikube docker-env)
 ```
 docker build -t django-app ./backend_main_django
 ```
-Создайте конфигурационный файл `django-app-config.yaml`, содержащий в себе все необходимые переменные окружения:
+
+Создайте конфигурационный файл `django-app-config.yaml` в каталоге `kubernetes`, содержащий в себе все необходимые переменные окружения:
 ```
 apiVersion: v1
 kind: ConfigMap
@@ -65,11 +66,11 @@ data:
 ```
 Запустите файл-конфиг:
 ```
- kubectl apply -f django-app-config.yaml
+ kubectl apply -f kubernetes/django-app-config.yaml
 ```
 Запустите сборку деплоймента:
 ```
-kubectl apply -f django-app.yaml
+kubectl apply -f kubernetes/django-app.yaml
 ```
 Добавьте путь к тестовому хосту в файл `etc/hosts`:
 ```
@@ -81,12 +82,12 @@ minikube addons enable ingress
 ```
 Запустите сборку `Ingress`:
 ```
-kubectl apply -f ingress.yaml
+kubectl apply -f kubernetes/ingress.yaml
 ```
 
-Запустите манифест `clearsession`, для установки очистки сессий Django по расписанию:
+Запустите манифест `clearsession`, для очистки сессий Django по расписанию:
 ```
-kubectl apply -f clearsession.yaml
+kubectl apply -f kubernetes/clearsession.yaml
 ```
 
 Откройте сайт по ссылке: http://star-burger.test/
@@ -94,5 +95,5 @@ kubectl apply -f clearsession.yaml
 
 Чтобы применить миграции к базе данных, используйте следующую команду:
 ```
-kubectl apply -f django-migrate.yaml
+kubectl apply -f kubernetes/django-migrate.yaml
 ```
