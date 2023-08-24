@@ -89,13 +89,44 @@ kubectl apply -f kubernetes/ingress.yaml
 ```
 kubectl apply -f kubernetes/clearsession.yaml
 ```
+## Подключение PostgreSQL
+
+Установите [Helm](https://helm.sh/docs/intro/install/)
+
+Установите менеджер чартов Helm:
+```
+helm repo add bitnami https://charts.bitnami.com/bitnami
+```
+
+Создайте файл `postgres.yaml` с конфигурацией базы данных:
+```
+global:
+  postgresql:
+    auth:
+      username: <USERNAME>
+      password: <PASSWORD>
+      database: <DB_NAME>
+    service:
+      ports:
+        postgresql: 5432
+```
+Установите релиз PostgreSQL:
+```
+helm install postgresql -f kubernetes/postgresql.yaml bitnami/postgresql
+```
+Введите команду:
+```
+export POSTGRES_PASSWORD=$(kubectl get secret --namespace default postgresql -o jsonpath="{.data.password}" | base64 -d)
+```
+
+Чтобы применить миграции к базе данных, используйте следующую команду:
+```
+kubectl apply -f kubernetes/django-migrate.yaml
+```
 
 ## Работа с сайтом
 
 Откройте сайт по ссылке: http://star-burger.test/
 
 
-Чтобы применить миграции к базе данных, используйте следующую команду:
-```
-kubectl apply -f kubernetes/django-migrate.yaml
-```
+
