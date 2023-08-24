@@ -123,6 +123,8 @@ export POSTGRES_PASSWORD=$(kubectl get secret --namespace default postgresql -o 
 ```
 kubectl apply -f kubernetes/django-migrate.yaml
 ```
+Укажите `HOST` базы данных в `DATABASE_URL` манифеста `django-app-config.yaml`.
+
 
 ## Работа с сайтом
 
