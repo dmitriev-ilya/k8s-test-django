@@ -81,7 +81,7 @@ kubectl apply -f kubernetes/ingress.yaml
 ```
 kubectl apply -f kubernetes/clearsession.yaml
 ```
-## Подключение PostgreSQL
+### Подключение PostgreSQL
 
 Установите [Helm](https://helm.sh/docs/intro/install/)
 
@@ -122,5 +122,81 @@ kubectl apply -f kubernetes/django-migrate.yaml
 
 Откройте сайт по ссылке: http://star-burger.test/
 
+## Запуск на внешнем кластере:
+
+Создайте конфигурационный файл `django-app-config.yaml` в каталоге `kubernetes_prod`, содержащий в себе все необходимые переменные окружения:
+```
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: django-config
+  labels:
+    app: django-app
+data:
+  SECRET_KEY: <django secret key>
+  DATABASE_URL: postgres://USERNAME:PASSWORD@HOST:PORT/DB_NAME
+  DEBUG=False
+  ALLOWED_HOSTS=<список доступных хостов>
+```
+Запустите файл-конфиг:
+```
+ kubectl apply -f kubernetes_prod/django-app-config.yaml
+```
+Запустите сборку деплоймента:
+```
+kubectl apply -f kubernetes_prod/django-app.yaml
+```
+Добавьте путь к тестовому хосту в файл `etc/hosts`:
+```
+echo "$(minikube ip) star-burger.test" | sudo tee -a /etc/hosts
+```
+Включите сервисы `Ingress` в Minikube:
+```
+minikube addons enable ingress     
+```
+Запустите сборку `Ingress`:
+```
+kubectl apply -f kubernetes_prod/ingress.yaml
+```
+
+Запустите манифест `clearsession`, для очистки сессий Django по расписанию:
+```
+kubectl apply -f kubernetes_prod/clearsession.yaml
+```
+### Подключение PostgreSQL
+
+Установите [Helm](https://helm.sh/docs/intro/install/)
+
+Установите менеджер чартов Helm:
+```
+helm repo add bitnami https://charts.bitnami.com/bitnami
+```
+
+Создайте файл `postgres.yaml` с конфигурацией базы данных:
+```
+global:
+  postgresql:
+    auth:
+      username: <USERNAME>
+      password: <PASSWORD>
+      database: <DB_NAME>
+    service:
+      ports:
+        postgresql: 5432
+```
+Установите релиз PostgreSQL:
+```
+helm install postgresql -f kubernetes_prod/postgresql.yaml bitnami/postgresql
+```
+Введите команду:
+```
+export POSTGRES_PASSWORD=$(kubectl get secret --namespace default postgresql -o jsonpath="{.data.password}" | base64 -d)
+```
+
+Чтобы применить миграции к базе данных, используйте следующую команду:
+```
+kubectl apply -f kubernetes/django-migrate.yaml
+```
+Укажите `HOST` базы данных в `DATABASE_URL` манифеста `django-app-config.yaml`.
 
 
