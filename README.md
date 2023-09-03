@@ -33,7 +33,7 @@ $ docker-compose run web ./manage.py createsuperuser
 
 `DATABASE_URL` -- адрес для подключения к базе данных PostgreSQL. Другие СУБД сайт не поддерживает. [Формат записи](https://github.com/jacobian/dj-database-url#url-schema).
 
-## Запуск в Minikube
+# Запуск в Minikube
 
 Сайт можно запустить на локальном компьютере с помощью связки [VirtualBox](https://www.virtualbox.org/) + [Minikube](https://minikube.sigs.k8s.io/docs/) + [K8s](https://kubernetes.io/ru/docs/tasks/tools/install-kubectl/) - подробно инструкция описана в [видео](https://www.youtube.com/watch?v=WAIrMmCQ3hE&list=PLg5SS_4L6LYvN1RqaVesof8KAf-02fJSi&index=3).
 
@@ -122,7 +122,7 @@ kubectl apply -f kubernetes/django-migrate.yaml
 
 Откройте сайт по ссылке: http://star-burger.test/
 
-## Запуск на внешнем кластере:
+# Запуск на внешнем кластере:
 
 Создайте конфигурационный файл `django-app-config.yaml` в каталоге `kubernetes_prod`, содержащий в себе все необходимые переменные окружения:
 ```
@@ -146,15 +146,41 @@ data:
 ```
 kubectl apply -f kubernetes_prod/django-app.yaml
 ```
-Добавьте путь к тестовому хосту в файл `etc/hosts`:
+
+Установите сервисы `Ingress-контроллера` в кластере, например с помощью `nginx`:
 ```
-echo "$(minikube ip) star-burger.test" | sudo tee -a /etc/hosts
+helm repo add nginx-stable https://helm.nginx.com/stable
+helm repo update
+
+helm install nginx-ingress-tcp nginx-stable/nginx-ingress --set-string 'controller.config.entries.use-proxy-protocol=true' --create-namespace --namespace example-nginx-ingress-tcp
 ```
-Включите сервисы `Ingress` в Minikube:
+
+С помошью Helm установите [cert-manager](https://cert-manager.io/docs/installation/helm/).
+
+В каталоге `kubernetes_prod` создайте манифест `cert.yaml`:
+
 ```
-minikube addons enable ingress     
+apiVersion: cert-manager.io/v1
+kind: Issuer
+metadata:
+  name: letsencrypt-prod
+spec:
+  acme:
+    # The ACME server URL
+    server: https://acme-v02.api.letsencrypt.org/directory
+    # Email address used for ACME registration
+    email: user@example.com
+    # Name of a secret used to store the ACME account private key
+    privateKeySecretRef:
+      name: letsencrypt-prod
+    # Enable the HTTP-01 challenge provider
+    solvers:
+      - http01:
+          ingress:
+            ingressClassName: nginx
 ```
-Запустите сборку `Ingress`:
+
+Запустите сборку `Ingress`(перед этим замените `HOST-name` на свои):
 ```
 kubectl apply -f kubernetes_prod/ingress.yaml
 ```
@@ -165,38 +191,11 @@ kubectl apply -f kubernetes_prod/clearsession.yaml
 ```
 ### Подключение PostgreSQL
 
-Установите [Helm](https://helm.sh/docs/intro/install/)
+См. выше
 
-Установите менеджер чартов Helm:
-```
-helm repo add bitnami https://charts.bitnami.com/bitnami
-```
+## Работа с сайтом
 
-Создайте файл `postgres.yaml` с конфигурацией базы данных:
-```
-global:
-  postgresql:
-    auth:
-      username: <USERNAME>
-      password: <PASSWORD>
-      database: <DB_NAME>
-    service:
-      ports:
-        postgresql: 5432
-```
-Установите релиз PostgreSQL:
-```
-helm install postgresql -f kubernetes_prod/postgresql.yaml bitnami/postgresql
-```
-Введите команду:
-```
-export POSTGRES_PASSWORD=$(kubectl get secret --namespace default postgresql -o jsonpath="{.data.password}" | base64 -d)
-```
+Откройте сайт по ссылке: http://DOMAIN.EXAMPLE/
 
-Чтобы применить миграции к базе данных, используйте следующую команду:
-```
-kubectl apply -f kubernetes/django-migrate.yaml
-```
-Укажите `HOST` базы данных в `DATABASE_URL` манифеста `django-app-config.yaml`.
-
+Где `DOMAIN.EXAMPLE` указанное в `ingress.yaml` доменное имя.
 
