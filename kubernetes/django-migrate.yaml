@@ -10,7 +10,7 @@ spec:
     spec:
       containers:
         - name : django-container
-          image: django-app
+          image: iadmitriev/django_app:latest
           command: ['./manage.py', 'migrate', '--no-input']
           envFrom:
             - configMapRef:

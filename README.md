@@ -41,14 +41,6 @@ $ docker-compose run web ./manage.py createsuperuser
 ```
 minikube start
 ```
-Введите команду ниже, чтобы получить возможность использовать Docker внутри кластера:
-```
-eval $(minikube docker-env)
-```
-Затем соберите Docker-образ нашего Django-приложения внутри кластера:
-```
-docker build -t django-app ./backend_main_django
-```
 
 Создайте конфигурационный файл `django-app-config.yaml` в каталоге `kubernetes`, содержащий в себе все необходимые переменные окружения:
 ```
