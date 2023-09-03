@@ -179,7 +179,10 @@ spec:
           ingress:
             ingressClassName: nginx
 ```
-
+Примините манифест `cert.yaml`:
+```
+kubectl apply -f kubernetes_prod/cert.yaml
+```
 Запустите сборку `Ingress`(перед этим замените `HOST-name` на свои):
 ```
 kubectl apply -f kubernetes_prod/ingress.yaml
