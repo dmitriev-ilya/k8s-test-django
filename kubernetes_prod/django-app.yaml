@@ -33,7 +33,6 @@ metadata:
 spec:
   selector:   
     app: django-app
-  type: NodePort
   ports: 
     - name: http
       port: 80

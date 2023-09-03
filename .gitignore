@@ -4,3 +4,4 @@ __pycache__/
 *$py.class
 django-app-config.yaml
 postgresql.yaml
+cert.yaml

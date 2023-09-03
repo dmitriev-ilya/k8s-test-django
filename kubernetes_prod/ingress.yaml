@@ -4,10 +4,16 @@ metadata:
   name: django-ingress
   annotations:
     nginx.ingress.kubernetes.io/rewrite-target: /
-    nginx.ingress.kubernetes.io/ssl-redirect: "true"
+    nginx.ingress.kubernetes.io/ssl-redirect: "false"
+    cert-manager.io/issuer: "letsencrypt-prod"
 spec:
+  ingressClassName: nginx
+  tls:
+  - hosts:
+    - dexter-superstar.ru
+    secretName: secret-tls
   rules:
-    - host: star-burger.test
+    - host: dexter-superstar.ru
       http:
         paths:
           - path: /
